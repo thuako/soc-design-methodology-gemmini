@@ -10,6 +10,7 @@ import freechips.rocketchip.tilelink.TLEdgeOut
 import freechips.rocketchip.util.InOrderArbiter
 
 import Util._
+import midas.targetutils.PerfCounter
 
 
 class DecoupledTLBReq(val lgMaxSize: Int)(implicit p: Parameters) extends CoreBundle {
@@ -63,6 +64,10 @@ class DecoupledTLB(entries: Int, maxSize: Int)(implicit edge: TLEdgeOut, p: Para
 
   io.ptw <> tlb.io.ptw
   tlb.io.ptw.status := req.status
+
+  PerfCounter(tlb.io.req.fire(), "tlb_req_fired", "how many tlb requests have we made?")
+  PerfCounter(tlb.io.ptw.req.fire(), "ptw_req_fired", "how many ptw requests have we made?")
+  PerfCounter(io.req.fire() && tlb.io.resp.miss, "tlb_miss", "how many tlb requests resulted in a miss?")
 
   when (io.req.fire() || state === s_waiting_for_resp) {
     // We could actually check the response from the TLB instantaneously to get a response in the same cycle. However,

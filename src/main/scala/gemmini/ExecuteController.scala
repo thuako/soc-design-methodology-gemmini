@@ -7,6 +7,8 @@ import GemminiISA._
 import Util._
 import freechips.rocketchip.config.Parameters
 
+import midas.targetutils.PerfCounter
+
 // TODO do we still need to flush when the dataflow is weight stationary? Won't the result just keep travelling through on its own?
 class ExecuteController[T <: Data, U <: Data, V <: Data](xLen: Int, tagWidth: Int, config: GemminiArrayConfig[T, U, V])
                                   (implicit p: Parameters, ev: Arithmetic[T]) extends Module {
@@ -881,4 +883,27 @@ class ExecuteController[T <: Data, U <: Data, V <: Data](xLen: Int, tagWidth: In
     // pending_completed_rob_id.valid := false.B
     pending_completed_rob_ids.foreach(_.valid := false.B)
   }
+
+  // Perf counters
+  val pre_counter = RegInit(0.U(34.W))
+  val mul_counter = RegInit(0.U(34.W))
+  val mul_pre_counter = RegInit(0.U(34.W))
+  val waiting_for_mesh_cycle_counter = RegInit(0.U(34.W))
+
+  when (perform_single_preload) {
+    pre_counter := pre_counter + 1.U
+  }.elsewhen (perform_single_mul) {
+    mul_counter := mul_counter + 1.U
+  }.elsewhen (perform_mul_pre) {
+    mul_pre_counter := mul_pre_counter + 1.U
+  }.elsewhen (matmul_in_progress) {
+    waiting_for_mesh_cycle_counter := waiting_for_mesh_cycle_counter + 1.U
+  }
+
+  val incr_waiting_for_mesh_cycle_counter = !perform_single_preload && !perform_mul_pre && !perform_single_mul && matmul_in_progress
+
+  PerfCounter(perform_single_preload, "pre_cnt", "how many cycles did we preload only?")
+  PerfCounter(perform_single_mul, "mul_cnt", "how many cycles did we only multiply?")
+  PerfCounter(perform_mul_pre, "mul_pre_cnt", "how many cycles did we both preload and multiply?")
+  PerfCounter(incr_waiting_for_mesh_cycle_counter, "mesh_waiting_cnt", "how many cycles do we wait for the mesh?")
 }
