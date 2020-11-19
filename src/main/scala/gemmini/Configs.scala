@@ -103,6 +103,7 @@ object GemminiConfigs {
 
     mvin_scale_shared = false,
 
+    /*
     acc_scale_args = ScaleArguments(
       (t: SInt, f: Float) => {
         val f_rec = recFNFromFN(f.expWidth, f.sigWidth, f.bits)
@@ -141,6 +142,14 @@ object GemminiConfigs {
       identity = "1.0",
       c_str = "({float y = ROUND_NEAR_EVEN((x) * (scale)); y > INT_MAX ? INT_MAX : (y < INT_MIN ? INT_MIN : (acc_t)y);})"
     ),
+    */
+
+    acc_scale_args = ScaleArguments(
+      (t: SInt, f: Float) => t,
+      0, Float(8, 24),
+      identity = "1.0",
+      c_str = "(x)"
+    ),
 
     acc_read_full_width = true,
     acc_read_small_width = true,
@@ -168,44 +177,6 @@ class DefaultGemminiConfig extends Config((site, here, up) => {
   )
   case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
 })
-
-// Virtual memory case study
-class VirtualGemminiConfigNoRegisterPrivateTLB4 extends Config((site, here, up) => {
-  case BuildRoCC => up(BuildRoCC) ++ Seq(
-    (p: Parameters) => {
-      implicit val q = p
-      val gemmini = LazyModule(new Gemmini(OpcodeSet.custom3,
-        GemminiConfigs.defaultConfig.copy(tlb_size = 4, max_in_flight_reqs = 256, use_tlb_register_filter = false)))
-      gemmini
-    }
-  )
-  case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
-})
-
-class VirtualGemminiConfigNoRegisterPrivateTLB8 extends Config((site, here, up) => {
-  case BuildRoCC => up(BuildRoCC) ++ Seq(
-    (p: Parameters) => {
-      implicit val q = p
-      val gemmini = LazyModule(new Gemmini(OpcodeSet.custom3,
-        GemminiConfigs.defaultConfig.copy(tlb_size = 8, max_in_flight_reqs = 256, use_tlb_register_filter = false)))
-      gemmini
-    }
-  )
-  case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
-})
-
-class VirtualGemminiConfigNoRegisterPrivateTLB16 extends Config((site, here, up) => {
-  case BuildRoCC => up(BuildRoCC) ++ Seq(
-    (p: Parameters) => {
-      implicit val q = p
-      val gemmini = LazyModule(new Gemmini(OpcodeSet.custom3,
-        GemminiConfigs.defaultConfig.copy(tlb_size = 16, max_in_flight_reqs = 256, use_tlb_register_filter = false)))
-      gemmini
-    }
-  )
-  case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
-})
-
 
 /**
  * Mixin which configures a smaller host processor for the systolic array.
