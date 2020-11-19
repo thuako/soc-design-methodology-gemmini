@@ -35,14 +35,9 @@ class WithMultiRoCC extends Config((site, here, up) => {
 // -----------------------
 
 object GemminiConfigs {
-  // import Arithmetic.FloatArithmetic._
-
   val defaultConfig = GemminiArrayConfig[SInt, Float, Float](
-  // val defaultConfig = GemminiArrayConfig[Float, Float](
     tileRows = 1,
     tileColumns = 1,
-    // meshRows = 4,
-    // meshColumns = 4,
     meshRows = 16,
     meshColumns = 16,
     ld_queue_length = 8,
@@ -64,29 +59,6 @@ object GemminiConfigs {
     inputType = SInt(8.W),
     outputType = SInt(20.W),
     accType = SInt(32.W),
-    // inputType = Float(8, 24),
-    // outputType = Float(8, 24),
-    // accType = Float(8, 24),
-
-    // mvin_scale_args = Some(MvinScaleArguments((t: SInt, u: SInt) => t * u, 0, SInt(8.W))),
-    // mvin_scale_acc_args = Some(MvinScaleArguments((t: SInt, u: SInt) => t * u, 0, SInt(8.W))),
-    // mvin_scale_args = None,
-
-//    mvin_scale_args = Some(ScaleArguments(
-//      (t: SInt, s: SInt) => {
-//        // The equation we use can be found here: https://riscv.github.io/documents/riscv-v-spec/#_vector_fixed_point_rounding_mode_register_vxrm
-//
-//        // TODO Do we need to explicitly handle the cases where "u" is a small number (like 0)? What is the default behavior here?
-//        val u = s.asUInt()
-//        val point_five = Mux(u === 0.U, 0.U, t(u - 1.U))
-//        val zeros = Mux(u <= 1.U, 0.U, t.asUInt() & ((1.U << (u - 1.U)).asUInt() - 1.U)) =/= 0.U
-//        val ones_digit = t(u)
-//
-//        val r = (point_five & (zeros | ones_digit)).asBool()
-//
-//        Mux(s >= 0.S, ((t >> u).asSInt() + Mux(r, 1.S, 0.S)).asSInt(), (t << (0.S-s).asUInt()).asSInt())
-//      },
-//      0, SInt(8.W), "0")),
 
     mvin_scale_args = Some(ScaleArguments(
       (t: SInt, f: Float) => {
@@ -130,23 +102,6 @@ object GemminiConfigs {
     mvin_scale_acc_args = None,
 
     mvin_scale_shared = false,
-
-//    acc_scale_args = ScaleArguments(
-//      (t: SInt, u: UInt) => {
-//        // The equation we use can be found here: https://riscv.github.io/documents/riscv-v-spec/#_vector_fixed_point_rounding_mode_register_vxrm
-//
-//        // TODO Do we need to explicitly handle the cases where "u" is a small number (like 0)? What is the default behavior here?
-//        val point_five = Mux(u === 0.U, 0.U, t(u - 1.U))
-//        val zeros = Mux(u <= 1.U, 0.U, t.asUInt() & ((1.U << (u - 1.U)).asUInt() - 1.U)) =/= 0.U
-//        val ones_digit = t(u)
-//
-//        val r = (point_five & (zeros | ones_digit)).asBool()
-//
-//        (t >> u).asSInt() + Mux(r, 1.S, 0.S)
-//      },
-//      0, UInt(8.W),
-//      c_str = "ROUNDING_RIGHT_SHIFT(x, scale)"
-//    ),
 
     acc_scale_args = ScaleArguments(
       (t: SInt, f: Float) => {
@@ -209,6 +164,43 @@ class DefaultGemminiConfig extends Config((site, here, up) => {
         implicit val q = p
         val gemmini = LazyModule(new Gemmini(OpcodeSet.custom3, GemminiConfigs.defaultConfig))
         gemmini
+    }
+  )
+  case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
+})
+
+// Virtual memory case study
+class VirtualGemminiConfigNoRegisterPrivateTLB4 extends Config((site, here, up) => {
+  case BuildRoCC => up(BuildRoCC) ++ Seq(
+    (p: Parameters) => {
+      implicit val q = p
+      val gemmini = LazyModule(new Gemmini(OpcodeSet.custom3,
+        GemminiConfigs.defaultConfig.copy(tlb_size = 4, max_in_flight_reqs = 256, use_tlb_register_filter = false)))
+      gemmini
+    }
+  )
+  case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
+})
+
+class VirtualGemminiConfigNoRegisterPrivateTLB8 extends Config((site, here, up) => {
+  case BuildRoCC => up(BuildRoCC) ++ Seq(
+    (p: Parameters) => {
+      implicit val q = p
+      val gemmini = LazyModule(new Gemmini(OpcodeSet.custom3,
+        GemminiConfigs.defaultConfig.copy(tlb_size = 8, max_in_flight_reqs = 256, use_tlb_register_filter = false)))
+      gemmini
+    }
+  )
+  case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
+})
+
+class VirtualGemminiConfigNoRegisterPrivateTLB16 extends Config((site, here, up) => {
+  case BuildRoCC => up(BuildRoCC) ++ Seq(
+    (p: Parameters) => {
+      implicit val q = p
+      val gemmini = LazyModule(new Gemmini(OpcodeSet.custom3,
+        GemminiConfigs.defaultConfig.copy(tlb_size = 16, max_in_flight_reqs = 256, use_tlb_register_filter = false)))
+      gemmini
     }
   )
   case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
