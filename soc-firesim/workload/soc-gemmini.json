@@ -1,0 +1,19 @@
+{
+  "benchmark_name"            : "soc-gemmini",
+  "common_bootbinary"         : "br-base-bin",
+  "deliver_dir" : "/",
+  "common_args" : [],
+  "common_files" : ["/gemmini"],
+  "common_outputs"            : [],
+  "common_simulation_outputs" : ["uartlog"],
+  "rootfs-size": "1GiB",
+  "workloads" : [
+    {
+      "name": "resnet50",
+      "files": [],
+      "command": "",
+      "simulation_outputs": [],
+      "outputs": []
+    }
+  ]
+}
