@@ -1,6 +1,7 @@
 [submodule "software/gemmini-rocc-tests"]
 	path = software/gemmini-rocc-tests
 	url = https://github.com/thuako/soc-design-gemmini-rocc-tests 
+  branch = soc-gemmini
 [submodule "software/onnxruntime-riscv"]
 	path = software/onnxruntime-riscv
 	url = https://github.com/pranav-prakash/onnxruntime-riscv.git
