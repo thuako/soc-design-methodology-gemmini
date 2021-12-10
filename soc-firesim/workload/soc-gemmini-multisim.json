@@ -1,0 +1,24 @@
+{
+	"benchmark_name": "soc-gemmini-multisim",
+	"common_simulation_outputs": [
+		"uartlog"
+	],
+	"workloads": [
+		{
+			"name": "soc-gemmini-multisim-resnet50-1",
+			"bootbinary": "../../../target-design/chipyard/software/firemarshal/images/soc-gemmini-multisim-resnet50-1-bin",
+			"rootfs": "../../../target-design/chipyard/software/firemarshal/images/soc-gemmini-multisim-resnet50-1.img",
+			"outputs": [
+				"/gemmini/sim1.log"
+			]
+		},
+		{
+			"name": "soc-gemmini-multisim-resnet50-2",
+			"bootbinary": "../../../target-design/chipyard/software/firemarshal/images/soc-gemmini-multisim-resnet50-2-bin",
+			"rootfs": "../../../target-design/chipyard/software/firemarshal/images/soc-gemmini-multisim-resnet50-2.img",
+			"outputs": [
+				"/gemmini/sim2.log"
+			]
+		}
+	]
+}
