@@ -1,0 +1,29 @@
+{
+  "name"            : "soc-gemmini-multisim",
+  "base" : "br-base.json",
+  "workdir" : "..",
+  "overlay" : "/home/centos/firesim/sim/target-rtl/chipyard/generators/gemmini/software/gemmini-rocc-tests/build/overlay",
+  "outputs" : "/gemmini",
+  "jobs" : [
+    {
+      "name": "resnet50-1",
+      "command": "/gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux",
+      "outputs": []
+    },
+    {
+      "name": "resnet50-2",
+      "command": "/gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux",
+      "outputs": []
+    },
+    {
+      "name": "resnet50-3",
+      "command": "/gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux",
+      "outputs": []
+    },
+    {
+      "name": "resnet50-4",
+      "command": "/gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux",
+      "outputs": []
+    }
+  ]
+}
