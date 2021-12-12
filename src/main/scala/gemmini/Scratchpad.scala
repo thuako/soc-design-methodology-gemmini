@@ -8,6 +8,8 @@ import freechips.rocketchip.rocket._
 import freechips.rocketchip.tile._
 import freechips.rocketchip.tilelink.{TLIdentityNode, TLXbar}
 
+import midas.targetutils.PerfCounter
+import midas.targetutils.SynthesizePrintf
 import Util._
 
 class ScratchpadMemReadRequest[U <: Data](local_addr_t: LocalAddr, scale_t_bits: Int)
@@ -384,6 +386,7 @@ class Scratchpad[T <: Data, U <: Data, V <: Data](config: GemminiArrayConfig[T, 
         when (exread) {
           bio.read.req.bits.addr := ex_read_req.bits.addr
           bio.read.req.bits.fromDMA := false.B
+          printf(SynthesizePrintf("EX,%d,%d\n", write_dispatch_q.bits.laddr.sp_bank(), write_dispatch_q.bits.laddr.sp_row() ))
         }.elsewhen (dmawrite) {
           bio.read.req.bits.addr := write_dispatch_q.bits.laddr.sp_row()
           bio.read.req.bits.fromDMA := true.B
@@ -438,6 +441,10 @@ class Scratchpad[T <: Data, U <: Data, V <: Data](config: GemminiArrayConfig[T, 
           !((mvin_scale_out.valid && mvin_scale_out.bits.last) || (mvin_scale_acc_out.valid && mvin_scale_acc_out.bits.last))
 
         bio.write.en := exwrite || dmaread || zerowrite
+
+        when(dmaread){
+          printf(SynthesizePrintf("LD,%d,%d\n", laddr.sp_bank(), laddr.sp_row() ))
+        }
 
         when (exwrite) {
           bio.write.addr := io.srams.write(i).addr
