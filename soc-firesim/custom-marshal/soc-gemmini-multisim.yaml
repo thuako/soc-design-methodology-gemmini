@@ -2,28 +2,47 @@
   "name"            : "soc-gemmini-multisim",
   "base" : "br-base.json",
   "workdir" : "..",
-  "overlay" : "/home/centos/firesim/sim/target-rtl/chipyard/generators/gemmini/software/gemmini-rocc-tests/build/overlay",
-  "outputs" : "/gemmini",
+  "overlay" : "/home/centos/firesim/sim/target-rtl/chipyard/generators/gemmini/software/gemmini-rocc-tests/build",
+  "outputs" : "/imagenet/result.log",
   "jobs" : [
     {
-      "name": "resnet50-1",
-      "command": "/gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux",
-      "outputs": []
+      "name": "imagenet-1",
+      "command": "/run-simulate_half.sh",
+      "outputs": ["/imagenet/result.log"]
     },
     {
-      "name": "resnet50-2",
-      "command": "/gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux",
-      "outputs": []
+      "name": "imagenet-2",
+      "command": "/run-simulate.sh",
+      "outputs": ["/imagenet/result.log"]
     },
     {
-      "name": "resnet50-3",
-      "command": "/gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux",
-      "outputs": []
+      "name": "imagenet-3",
+      "command": "/run-simulate.sh",
+      "outputs": ["/imagenet/result.log"]
     },
     {
-      "name": "resnet50-4",
-      "command": "/gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux && /gemmini/resnet50-linux",
-      "outputs": []
+      "name": "imagenet-4",
+      "command": "/run-simulate.sh",
+      "outputs": ["/imagenet/result.log"]
     }
   ]
 }
+
+#
+#  "jobs" : [
+#    {
+#      "name": "resnet50-1",
+#      "command": "/imagenet/guest-init.sh",
+#      "outputs": []
+#    },
+#    {
+#      "name": "resnet50-2",
+#      "command": "/imagenet/guest-init.sh",
+#      "outputs": []
+#    },
+#    {
+#      "name": "resnet50-3",
+#      "command": "/imagenet/guest-init.sh",
+#      "outputs": []
+#    }
+#  ]
