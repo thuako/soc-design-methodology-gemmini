@@ -160,6 +160,8 @@ object GemminiConfigs {
   )
 
   val leanConfig = defaultConfig.copy(dataflow=Dataflow.WS, max_in_flight_reqs = 64, acc_read_full_width = false, ex_read_from_acc = false, ex_write_to_spad = false, hardcode_d_to_garbage_addr = true)
+  val MegaScratchConfig = defaultConfig.copy(sp_capacity=CapacityInKilobytes(4096), acc_capacity=CapacityInKilobytes(256), dataflow=Dataflow.WS, max_in_flight_reqs = 64, acc_read_full_width = false, ex_read_from_acc = false, ex_write_to_spad = false, hardcode_d_to_garbage_addr = true)
+  val LargeScratchConfig = defaultConfig.copy(sp_capacity=CapacityInKilobytes(1024), acc_capacity=CapacityInKilobytes(256), dataflow=Dataflow.WS, max_in_flight_reqs = 64, acc_read_full_width = false, ex_read_from_acc = false, ex_write_to_spad = false, hardcode_d_to_garbage_addr = true)
 }
 
 /**
@@ -196,6 +198,33 @@ class LeanGemminiConfig[T <: Data : Arithmetic, U <: Data, V <: Data](
 
 class ChipGemminiConfig[T <: Data : Arithmetic, U <: Data, V <: Data](
   gemminiConfig: GemminiArrayConfig[T,U,V] = GemminiConfigs.chipConfig
+) extends Config((site, here, up) => {
+  case BuildRoCC => up(BuildRoCC) ++ Seq(
+    (p: Parameters) => {
+      implicit val q = p
+      val gemmini = LazyModule(new Gemmini(gemminiConfig))
+      gemmini
+    }
+  )
+  case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
+})
+
+
+class LargeScratchGemminiConfig[T <: Data : Arithmetic, U <: Data, V <: Data](
+  gemminiConfig: GemminiArrayConfig[T,U,V] = GemminiConfigs.LargeScratchConfig
+) extends Config((site, here, up) => {
+  case BuildRoCC => up(BuildRoCC) ++ Seq(
+    (p: Parameters) => {
+      implicit val q = p
+      val gemmini = LazyModule(new Gemmini(gemminiConfig))
+      gemmini
+    }
+  )
+  case SystemBusKey => up(SystemBusKey).copy(beatBytes = 16)
+})
+
+class MegaScratchGemminiConfig[T <: Data : Arithmetic, U <: Data, V <: Data](
+  gemminiConfig: GemminiArrayConfig[T,U,V] = GemminiConfigs.MegaScratchConfig
 ) extends Config((site, here, up) => {
   case BuildRoCC => up(BuildRoCC) ++ Seq(
     (p: Parameters) => {

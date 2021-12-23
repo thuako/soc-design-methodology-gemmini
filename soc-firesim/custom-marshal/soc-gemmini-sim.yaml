@@ -1,0 +1,14 @@
+{
+  "name"            : "soc-gemmini-sim",
+  "base" : "br-base.json",
+  "workdir" : "..",
+  "overlay" : "/home/centos/firesim/sim/target-rtl/chipyard/generators/gemmini/software/gemmini-rocc-tests/build",
+  "outputs" : "/imagenet/result.log",
+  "jobs" : [
+    {
+      "name": "baseline",
+      "command": "/run-simulate.sh loop ",
+      "outputs": ["/imagenet/result.log"]
+    }
+  ]
+}

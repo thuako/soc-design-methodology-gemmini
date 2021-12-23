@@ -386,7 +386,10 @@ class Scratchpad[T <: Data, U <: Data, V <: Data](config: GemminiArrayConfig[T, 
         when (exread) {
           bio.read.req.bits.addr := ex_read_req.bits.addr
           bio.read.req.bits.fromDMA := false.B
-          printf(SynthesizePrintf("EX,%d,%d\n", write_dispatch_q.bits.laddr.sp_bank(), write_dispatch_q.bits.laddr.sp_row() ))
+
+          // soc class scratchpad state print 
+          printf(SynthesizePrintf("EX,%d,%d\n", i.U(log2Ceil(sp_banks).W), ex_read_req.bits.addr ))
+
         }.elsewhen (dmawrite) {
           bio.read.req.bits.addr := write_dispatch_q.bits.laddr.sp_row()
           bio.read.req.bits.fromDMA := true.B
@@ -442,9 +445,6 @@ class Scratchpad[T <: Data, U <: Data, V <: Data](config: GemminiArrayConfig[T, 
 
         bio.write.en := exwrite || dmaread || zerowrite
 
-        when(dmaread){
-          printf(SynthesizePrintf("LD,%d,%d\n", laddr.sp_bank(), laddr.sp_row() ))
-        }
 
         when (exwrite) {
           bio.write.addr := io.srams.write(i).addr
@@ -456,6 +456,9 @@ class Scratchpad[T <: Data, U <: Data, V <: Data](config: GemminiArrayConfig[T, 
           bio.write.mask := mvin_scale_out.bits.tag.mask take ((spad_w / (aligned_to * 8)) max 1)
 
           mvin_scale_out.ready := true.B // TODO we combinationally couple valid and ready signals
+
+          // soc class scratchpad state print 
+          printf(SynthesizePrintf("LD,%d,%d\n", laddr.sp_bank(), laddr.sp_row() ))
         }.elsewhen (zerowrite) {
           bio.write.addr := zero_writer.io.resp.bits.laddr.sp_row()
           bio.write.data := 0.U
